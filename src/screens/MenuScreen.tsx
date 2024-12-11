@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -10,24 +10,13 @@ import {
 } from 'react-native';
 import { Recipe } from '../types';
 import { getSavedRecipes, removeRecipe } from '../utils/storage';
+import { useRecipes } from '../context/RecipeContext';
 
 export default function MenuScreen() {
-  const [savedRecipes, setSavedRecipes] = useState<Recipe[]>([]);
-  const [refreshing, setRefreshing] = useState(false);
-
-  const loadSavedRecipes = async () => {
-    const recipes = await getSavedRecipes();
-    setSavedRecipes(recipes);
-  };
-
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await loadSavedRecipes();
-    setRefreshing(false);
-  };
+  const { savedRecipes, refreshSavedRecipes } = useRecipes();
 
   useEffect(() => {
-    loadSavedRecipes();
+    refreshSavedRecipes();
   }, []);
 
   const handleDeleteRecipe = async (recipe: Recipe) => {
@@ -45,7 +34,7 @@ export default function MenuScreen() {
           onPress: async () => {
             const success = await removeRecipe(recipe.id);
             if (success) {
-              await loadSavedRecipes();
+              await refreshSavedRecipes();
               Alert.alert('Thành công', 'Đã xóa công thức');
             }
           },
@@ -58,7 +47,7 @@ export default function MenuScreen() {
     <ScrollView
       style={styles.container}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        <RefreshControl refreshing={false} onRefresh={refreshSavedRecipes} />
       }
     >
       {savedRecipes.length === 0 ? (

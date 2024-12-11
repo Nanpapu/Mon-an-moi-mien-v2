@@ -12,14 +12,17 @@ import MapView, { Marker } from "react-native-maps";
 import { regions } from "../data/regions";
 import { Recipe } from "../types";
 import { saveRecipe } from '../utils/storage';
+import { useRecipes } from '../context/RecipeContext';
 
 export default function MapScreen() {
+  const { refreshSavedRecipes } = useRecipes();
   const [selectedRecipes, setSelectedRecipes] = useState<Recipe[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
 
   const handleSaveRecipe = async (recipe: Recipe) => {
     const success = await saveRecipe(recipe);
     if (success) {
+      await refreshSavedRecipes();
       Alert.alert('Thành công', 'Đã lưu công thức vào Menu của bạn');
     } else {
       Alert.alert('Thông báo', 'Công thức này đã được lưu trước đó');
