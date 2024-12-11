@@ -18,6 +18,31 @@ export default function MapScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   // Trạng thái sẵn sàng của bản đồ
   const [isMapReady, setIsMapReady] = useState(false);
+  const [region, setRegion] = useState({
+    latitude: 16.047079,
+    longitude: 108.20623,
+    latitudeDelta: 10,
+    longitudeDelta: 10,
+  });
+
+  // Thêm state để theo dõi mức zoom
+  const [currentZoom, setCurrentZoom] = useState(10);
+
+  // Hàm tính toán zoom level từ latitudeDelta
+  const calculateZoom = (latitudeDelta: number) => {
+    return Math.round(Math.log(360 / latitudeDelta) / Math.LN2);
+  };
+
+  // Hàm kiểm tra xem marker có nên hiển thị không
+  const shouldShowMarker = (regionId: string, zoom: number) => {
+    // 3 thành phố lớn luôn hiển thị khi zoom > 5
+    const majorCities = ['01', '48', '79']; // Hà Nội, Đà Nẵng, TP.HCM
+    if (majorCities.includes(regionId)) {
+      return zoom > 2;
+    }
+    // Các tỉnh khác chỉ hiển thị khi zoom > 7
+    return zoom > 3.5;
+  };
 
   // EFFECTS
   // Thiết lập timer để đánh dấu bản đồ đã sẵn sàng
@@ -57,25 +82,26 @@ export default function MapScreen() {
       <MapView
         provider={PROVIDER_GOOGLE}
         style={styles.map}
-        initialRegion={{
-          latitude: 16.047079,
-          longitude: 108.20623,
-          latitudeDelta: 10,
-          longitudeDelta: 10,
+        initialRegion={region}
+        onRegionChange={(newRegion) => {
+          setRegion(newRegion);
+          setCurrentZoom(calculateZoom(newRegion.latitudeDelta));
         }}
         onMapReady={() => setIsMapReady(true)}
       >
         {/* Các điểm đánh dấu trên bản đồ */}
         {isMapReady && regions.map((region) => (
-          <Marker
-            key={region.id}
-            coordinate={region.coordinate}
-            title={region.name}
-            onPress={() => {
-              setSelectedRecipes(region.recipes);
-              setModalVisible(true);
-            }}
-          />
+          shouldShowMarker(region.id, currentZoom) && (
+            <Marker
+              key={region.id}
+              coordinate={region.coordinate}
+              title={region.name}
+              onPress={() => {
+                setSelectedRecipes(region.recipes);
+                setModalVisible(true);
+              }}
+            />
+          )
         ))}
       </MapView>
 
