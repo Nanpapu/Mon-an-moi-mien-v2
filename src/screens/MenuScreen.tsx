@@ -10,6 +10,7 @@ import {
   Alert,
   RefreshControl,
 } from "react-native";
+import { Image } from 'expo-image';
 import { Recipe } from "../types";
 import { getSavedRecipes, removeRecipe } from "../utils/storage";
 import { useRecipes } from "../context/RecipeContext";
@@ -123,16 +124,21 @@ export default function MenuScreen() {
         {filteredRecipes.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>
-              {savedRecipes.length === 0 
-                ? 'Bạn chưa lưu công thức nào.\nHãy khám phá các món ăn trong phần Bản đồ!'
-                : 'Không tìm thấy công thức phù hợp với điều kiện lọc.'
-              }
+              {savedRecipes.length === 0
+                ? "Bạn chưa lưu công thức nào.\nHãy khám phá các món ăn trong phần Bản đồ!"
+                : "Không tìm thấy công thức phù hợp với điều kiện lọc."}
             </Text>
           </View>
         ) : (
           // Hiển thị danh sách công thức đã được lọc
           filteredRecipes.map((recipe) => (
             <View key={recipe.id} style={styles.recipeCard}>
+              <Image
+                source={recipe.image}
+                style={styles.recipeImage}
+                contentFit="cover"
+                transition={1000}
+              />
               <Text style={styles.recipeName}>{recipe.name}</Text>
               <Text style={styles.regionName}>Vùng miền: {recipe.region}</Text>
 
@@ -261,5 +267,13 @@ const styles = StyleSheet.create({
     color: "white",
     textAlign: "center",
     fontWeight: "bold",
+  },
+
+  // Thêm vào phần styles
+  recipeImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 8,
+    marginBottom: 10,
   },
 });
