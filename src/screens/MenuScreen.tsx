@@ -1,3 +1,5 @@
+// Component màn hình Menu chính
+// Hiển thị danh sách các công thức đã lưu và cho phép tìm kiếm, lọc theo vùng miền
 import React, { useState, useMemo, useEffect } from 'react';
 import {
   StyleSheet,
@@ -14,25 +16,36 @@ import { useRecipes } from '../context/RecipeContext';
 import { SearchBar } from '../components/SearchBar';
 
 export default function MenuScreen() {
+  // HOOKS & STATE
+  // Lấy danh sách công thức đã lưu và hàm refresh từ context
   const { savedRecipes, refreshSavedRecipes } = useRecipes();
+  
+  // State quản lý từ khóa tìm kiếm và vùng miền được chọn
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
 
+  // COMPUTED VALUES
+  // Lọc công thức theo điều kiện tìm kiếm và vùng miền
   const filteredRecipes = useMemo(() => {
     return savedRecipes.filter(recipe => {
+      // Kiểm tra khớp với từ khóa tìm kiếm (tên món hoặc nguyên liệu)
       const matchesSearch = recipe.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         recipe.ingredients.some(i => i.toLowerCase().includes(searchQuery.toLowerCase()));
       
+      // Kiểm tra khớp với vùng miền đã chọn
       const matchesRegion = !selectedRegion || recipe.region === selectedRegion;
       
       return matchesSearch && matchesRegion;
     });
   }, [savedRecipes, searchQuery, selectedRegion]);
 
+  // Lấy danh sách các vùng miền duy nhất từ công thức đã lưu
   const regions = useMemo(() => {
     return Array.from(new Set(savedRecipes.map(r => r.region)));
   }, [savedRecipes]);
 
+  // HANDLERS
+  // Xử lý xóa công thức
   const handleDeleteRecipe = async (recipe: Recipe) => {
     Alert.alert(
       'Xác nhận xóa',
@@ -43,7 +56,7 @@ export default function MenuScreen() {
           style: 'cancel',
         },
         {
-          text: 'Xóa',
+          text: 'Xóa', 
           style: 'destructive',
           onPress: async () => {
             const success = await removeRecipe(recipe.id);
@@ -57,14 +70,17 @@ export default function MenuScreen() {
     );
   };
 
+  // RENDER
   return (
     <View style={styles.container}>
+      {/* Thanh tìm kiếm */}
       <SearchBar
         value={searchQuery}
         onChangeText={setSearchQuery}
         placeholder="Tìm theo tên món hoặc nguyên liệu..."
       />
       
+      {/* Thanh lọc theo vùng miền */}
       <ScrollView
         horizontal
         style={styles.filterContainer}
@@ -93,12 +109,14 @@ export default function MenuScreen() {
         ))}
       </ScrollView>
 
+      {/* Danh sách công thức */}
       <ScrollView
         style={styles.recipeList}
         refreshControl={
           <RefreshControl refreshing={false} onRefresh={refreshSavedRecipes} />
         }
       >
+        {/* Hiển thị thông báo khi chưa có công thức */}
         {savedRecipes.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>
@@ -107,6 +125,7 @@ export default function MenuScreen() {
             </Text>
           </View>
         ) : (
+          // Hiển thị danh sách công thức
           savedRecipes.map((recipe) => (
             <View key={recipe.id} style={styles.recipeCard}>
               <Text style={styles.recipeName}>{recipe.name}</Text>
@@ -140,11 +159,15 @@ export default function MenuScreen() {
   );
 }
 
+// STYLES
 const styles = StyleSheet.create({
+  // Container chính
   container: {
     flex: 1,
     backgroundColor: '#fff',
   },
+
+  // Styles cho phần lọc
   filterContainer: {
     paddingHorizontal: 10,
     marginBottom: 10,
@@ -163,6 +186,8 @@ const styles = StyleSheet.create({
     color: '#333',
     fontSize: 14,
   },
+
+  // Styles cho danh sách công thức
   recipeList: {
     flex: 1,
   },
@@ -178,6 +203,8 @@ const styles = StyleSheet.create({
     color: '#666',
     lineHeight: 24,
   },
+
+  // Styles cho thẻ công thức
   recipeCard: {
     backgroundColor: 'white',
     borderRadius: 10,
@@ -213,6 +240,8 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     paddingLeft: 5,
   },
+
+  // Styles cho nút xóa
   deleteButton: {
     backgroundColor: '#ff4444',
     padding: 10,
