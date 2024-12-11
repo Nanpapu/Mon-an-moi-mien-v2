@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -7,8 +7,9 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  ActivityIndicator,
 } from "react-native";
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { regions } from "../data/regions";
 import { Recipe } from "../types";
 import { saveRecipe } from '../utils/storage';
@@ -19,6 +20,15 @@ export default function MapScreen() {
   const { refreshSavedRecipes } = useRecipes();
   const [selectedRecipes, setSelectedRecipes] = useState<Recipe[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
+  const [isMapReady, setIsMapReady] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsMapReady(true);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSaveRecipe = async (recipe: Recipe) => {
     const success = await saveRecipe(recipe);
@@ -30,9 +40,18 @@ export default function MapScreen() {
     }
   };
 
+  if (!regions || regions.length === 0) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text>Không có dữ liệu vùng miền</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <MapView
+        provider={PROVIDER_GOOGLE}
         style={styles.map}
         initialRegion={{
           latitude: 16.047079,
@@ -40,8 +59,9 @@ export default function MapScreen() {
           latitudeDelta: 10,
           longitudeDelta: 10,
         }}
+        onMapReady={() => setIsMapReady(true)}
       >
-        {regions.map((region) => (
+        {isMapReady && regions.map((region) => (
           <Marker
             key={region.id}
             coordinate={region.coordinate}
@@ -53,6 +73,12 @@ export default function MapScreen() {
           />
         ))}
       </MapView>
+
+      {!isMapReady && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      )}
 
       <Modal
         animationType="slide"
@@ -102,5 +128,15 @@ const styles = StyleSheet.create({
   closeButton: {
     alignSelf: "flex-end",
     padding: 10,
+  },
+  loadingContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.8)',
   },
 });
