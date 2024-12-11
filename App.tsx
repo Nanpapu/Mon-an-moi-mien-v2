@@ -1,20 +1,35 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
+
+import MapScreen from "./src/screens/MapScreen";
+import MenuScreen from "./src/screens/MenuScreen";
+import ProfileScreen from "./src/screens/ProfileScreen";
+
+const Tab = createBottomTabNavigator();
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <Tab.Navigator
+        screenOptions={({ route }) => ({
+          tabBarIcon: ({ focused, color, size }) => {
+            let iconName;
+            if (route.name === 'Bản đồ') {
+              iconName = focused ? 'map' : 'map-outline';
+            } else if (route.name === 'Menu') {
+              iconName = focused ? 'book' : 'book-outline';
+            } else if (route.name === 'Tài khoản') {
+              iconName = focused ? 'person' : 'person-outline';
+            }
+            return <Ionicons name={iconName} size={size} color={color} />;
+          },
+        })}
+      >
+        <Tab.Screen name="Bản đồ" component={MapScreen} />
+        <Tab.Screen name="Menu" component={MenuScreen} />
+        <Tab.Screen name="Tài khoản" component={ProfileScreen} />
+      </Tab.Navigator>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
