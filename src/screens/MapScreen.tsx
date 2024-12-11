@@ -1,27 +1,26 @@
-import React, { useState, useEffect } from "react";
-import {
-  StyleSheet,
-  View,
-  Modal,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
-  ActivityIndicator,
-} from "react-native";
-import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
-import { regions } from "../data/regions";
-import { Recipe } from "../types";
+// Component màn hình Bản đồ
+// Hiển thị bản đồ với các điểm đánh dấu cho từng vùng miền và công thức của vùng đó
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Modal, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import { Recipe } from '../types';
 import { saveRecipe } from '../utils/storage';
 import { useRecipes } from '../context/RecipeContext';
 import { RecipeCard } from '../components/RecipeCard';
+import { regions } from "../data/regions";
 
 export default function MapScreen() {
+  // HOOKS & STATE
   const { refreshSavedRecipes } = useRecipes();
+  // Danh sách công thức được chọn để hiển thị trong modal
   const [selectedRecipes, setSelectedRecipes] = useState<Recipe[]>([]);
+  // Trạng thái hiển thị modal
   const [modalVisible, setModalVisible] = useState(false);
+  // Trạng thái sẵn sàng của bản đồ
   const [isMapReady, setIsMapReady] = useState(false);
 
+  // EFFECTS
+  // Thiết lập timer để đánh dấu bản đồ đã sẵn sàng
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsMapReady(true);
@@ -30,6 +29,8 @@ export default function MapScreen() {
     return () => clearTimeout(timer);
   }, []);
 
+  // HANDLERS
+  // Xử lý lưu công thức
   const handleSaveRecipe = async (recipe: Recipe) => {
     const success = await saveRecipe(recipe);
     if (success) {
@@ -40,6 +41,8 @@ export default function MapScreen() {
     }
   };
 
+  // RENDER
+  // Hiển thị thông báo khi không có dữ liệu
   if (!regions || regions.length === 0) {
     return (
       <View style={styles.loadingContainer}>
@@ -50,6 +53,7 @@ export default function MapScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Bản đồ Google Maps */}
       <MapView
         provider={PROVIDER_GOOGLE}
         style={styles.map}
@@ -61,6 +65,7 @@ export default function MapScreen() {
         }}
         onMapReady={() => setIsMapReady(true)}
       >
+        {/* Các điểm đánh dấu trên bản đồ */}
         {isMapReady && regions.map((region) => (
           <Marker
             key={region.id}
@@ -74,12 +79,14 @@ export default function MapScreen() {
         ))}
       </MapView>
 
+      {/* Loading indicator khi bản đồ chưa sẵn sàng */}
       {!isMapReady && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#0000ff" />
         </View>
       )}
 
+      {/* Modal hiển thị danh sách công thức */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -109,34 +116,36 @@ export default function MapScreen() {
   );
 }
 
+// STYLES
 const styles = StyleSheet.create({
+  // Container chính
   container: {
     flex: 1,
   },
+
+  // Style cho bản đồ
   map: {
-    width: "100%",
-    height: "100%",
+    flex: 1,
   },
+
+  // Style cho loading container
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  // Styles cho modal
   modalView: {
     flex: 1,
+    backgroundColor: 'white',
     marginTop: 50,
-    backgroundColor: "white",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
   },
   closeButton: {
-    alignSelf: "flex-end",
+    alignSelf: 'flex-end',
     padding: 10,
-  },
-  loadingContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.8)',
   },
 });
