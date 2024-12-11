@@ -11,6 +11,7 @@ import {
 import { Recipe } from '../types';
 import { getSavedRecipes, removeRecipe } from '../utils/storage';
 import { useRecipes } from '../context/RecipeContext';
+import { SearchBar } from '../components/SearchBar';
 
 export default function MenuScreen() {
   const { savedRecipes, refreshSavedRecipes } = useRecipes();
@@ -57,49 +58,85 @@ export default function MenuScreen() {
   };
 
   return (
-    <ScrollView
-      style={styles.container}
-      refreshControl={
-        <RefreshControl refreshing={false} onRefresh={refreshSavedRecipes} />
-      }
-    >
-      {savedRecipes.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>
-            Bạn chưa lưu công thức nào.{'\n'}
-            Hãy khám phá các món ăn trong phần Bản đồ!
-          </Text>
-        </View>
-      ) : (
-        savedRecipes.map((recipe) => (
-          <View key={recipe.id} style={styles.recipeCard}>
-            <Text style={styles.recipeName}>{recipe.name}</Text>
-            <Text style={styles.regionName}>Vùng miền: {recipe.region}</Text>
-            
-            <Text style={styles.sectionTitle}>Nguyên liệu:</Text>
-            {recipe.ingredients.map((ingredient, index) => (
-              <Text key={index} style={styles.listItem}>
-                • {ingredient}
-              </Text>
-            ))}
+    <View style={styles.container}>
+      <SearchBar
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        placeholder="Tìm theo tên món hoặc nguyên liệu..."
+      />
+      
+      <ScrollView
+        horizontal
+        style={styles.filterContainer}
+        showsHorizontalScrollIndicator={false}
+      >
+        <TouchableOpacity
+          style={[
+            styles.filterButton,
+            !selectedRegion && styles.filterButtonActive
+          ]}
+          onPress={() => setSelectedRegion(null)}
+        >
+          <Text style={styles.filterText}>Tất cả</Text>
+        </TouchableOpacity>
+        {regions.map(region => (
+          <TouchableOpacity
+            key={region}
+            style={[
+              styles.filterButton,
+              selectedRegion === region && styles.filterButtonActive
+            ]}
+            onPress={() => setSelectedRegion(region)}
+          >
+            <Text style={styles.filterText}>{region}</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
 
-            <Text style={styles.sectionTitle}>Cách làm:</Text>
-            {recipe.instructions.map((instruction, index) => (
-              <Text key={index} style={styles.listItem}>
-                {index + 1}. {instruction}
-              </Text>
-            ))}
-
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={() => handleDeleteRecipe(recipe)}
-            >
-              <Text style={styles.deleteButtonText}>Xóa công thức</Text>
-            </TouchableOpacity>
+      <ScrollView
+        style={styles.recipeList}
+        refreshControl={
+          <RefreshControl refreshing={false} onRefresh={refreshSavedRecipes} />
+        }
+      >
+        {savedRecipes.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>
+              Bạn chưa lưu công thức nào.{'\n'}
+              Hãy khám phá các món ăn trong phần Bản đồ!
+            </Text>
           </View>
-        ))
-      )}
-    </ScrollView>
+        ) : (
+          savedRecipes.map((recipe) => (
+            <View key={recipe.id} style={styles.recipeCard}>
+              <Text style={styles.recipeName}>{recipe.name}</Text>
+              <Text style={styles.regionName}>Vùng miền: {recipe.region}</Text>
+              
+              <Text style={styles.sectionTitle}>Nguyên liệu:</Text>
+              {recipe.ingredients.map((ingredient, index) => (
+                <Text key={index} style={styles.listItem}>
+                  • {ingredient}
+                </Text>
+              ))}
+
+              <Text style={styles.sectionTitle}>Cách làm:</Text>
+              {recipe.instructions.map((instruction, index) => (
+                <Text key={index} style={styles.listItem}>
+                  {index + 1}. {instruction}
+                </Text>
+              ))}
+
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={() => handleDeleteRecipe(recipe)}
+              >
+                <Text style={styles.deleteButtonText}>Xóa công thức</Text>
+              </TouchableOpacity>
+            </View>
+          ))
+        )}
+      </ScrollView>
+    </View>
   );
 }
 
