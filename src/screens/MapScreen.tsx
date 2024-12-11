@@ -13,6 +13,7 @@ import { regions } from "../data/regions";
 import { Recipe } from "../types";
 import { saveRecipe } from '../utils/storage';
 import { useRecipes } from '../context/RecipeContext';
+import { RecipeCard } from '../components/RecipeCard';
 
 export default function MapScreen() {
   const { refreshSavedRecipes } = useRecipes();
@@ -68,25 +69,12 @@ export default function MapScreen() {
           </TouchableOpacity>
           <ScrollView>
             {selectedRecipes.map((recipe) => (
-              <View key={recipe.id} style={styles.recipeCard}>
-                <Text style={styles.recipeName}>{recipe.name}</Text>
-                <TouchableOpacity
-                  style={styles.saveButton}
-                  onPress={() => handleSaveRecipe(recipe)}
-                >
-                  <Text style={styles.saveButtonText}>Lưu công thức</Text>
-                </TouchableOpacity>
-                <Text style={styles.sectionTitle}>Nguyên liệu:</Text>
-                {recipe.ingredients.map((ingredient, index) => (
-                  <Text key={index}>• {ingredient}</Text>
-                ))}
-                <Text style={styles.sectionTitle}>Cách làm:</Text>
-                {recipe.instructions.map((instruction, index) => (
-                  <Text key={index}>
-                    {index + 1}. {instruction}
-                  </Text>
-                ))}
-              </View>
+              <RecipeCard
+                key={recipe.id}
+                recipe={recipe}
+                onSave={() => handleSaveRecipe(recipe)}
+                showActions={true}
+              />
             ))}
           </ScrollView>
         </View>
@@ -114,33 +102,5 @@ const styles = StyleSheet.create({
   closeButton: {
     alignSelf: "flex-end",
     padding: 10,
-  },
-  recipeCard: {
-    marginBottom: 20,
-    padding: 10,
-    backgroundColor: "#f8f8f8",
-    borderRadius: 10,
-  },
-  recipeName: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginTop: 10,
-    marginBottom: 5,
-  },
-  saveButton: {
-    backgroundColor: '#4CAF50',
-    padding: 10,
-    borderRadius: 5,
-    marginVertical: 10,
-  },
-  saveButtonText: {
-    color: 'white',
-    textAlign: 'center',
-    fontWeight: 'bold',
   },
 });

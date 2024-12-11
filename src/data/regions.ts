@@ -13,6 +13,7 @@ export const regions: Region[] = [
         id: 'nb1',
         name: 'Phở Hà Nội',
         region: 'Miền Bắc',
+        image: 'https://photo.znews.vn/w1920/Uploaded/qhj_pwqvdvicbu/2021_10_12/food.is.love13..jpeg',
         ingredients: [
           'Bánh phở',
           'Thịt bò',
@@ -42,6 +43,7 @@ export const regions: Region[] = [
         id: 'mt1',
         name: 'Mì Quảng',
         region: 'Miền Trung',
+        image: 'https://example.com/miquang.jpg',
         ingredients: [
           'Mì Quảng',
           'Tôm',
@@ -71,6 +73,7 @@ export const regions: Region[] = [
         id: 'mn1',
         name: 'Hủ tiếu Nam Vang',
         region: 'Miền Nam',
+        image: 'https://example.com/hutieunamvang.jpg',
         ingredients: [
           'Bánh hủ tiếu',
           'Thịt heo',

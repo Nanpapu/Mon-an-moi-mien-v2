@@ -4,7 +4,7 @@ export interface Recipe {
   region: string;
   ingredients: string[];
   instructions: string[];
-  image?: string;
+  image: string;
 }
 
 export interface Region {
