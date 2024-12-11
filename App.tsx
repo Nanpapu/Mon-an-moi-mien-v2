@@ -14,12 +14,12 @@ export default function App() {
       <Tab.Navigator
         screenOptions={({ route }) => ({
           tabBarIcon: ({ focused, color, size }) => {
-            let iconName;
+            let iconName: keyof typeof Ionicons.glyphMap;
             if (route.name === 'Bản đồ') {
               iconName = focused ? 'map' : 'map-outline';
             } else if (route.name === 'Menu') {
               iconName = focused ? 'book' : 'book-outline';
-            } else if (route.name === 'Tài khoản') {
+            } else {
               iconName = focused ? 'person' : 'person-outline';
             }
             return <Ionicons name={iconName} size={size} color={color} />;

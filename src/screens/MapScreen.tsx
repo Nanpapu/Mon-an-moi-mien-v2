@@ -6,14 +6,25 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { regions } from "../data/regions";
 import { Recipe } from "../types";
+import { saveRecipe } from '../utils/storage';
 
 export default function MapScreen() {
   const [selectedRecipes, setSelectedRecipes] = useState<Recipe[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
+
+  const handleSaveRecipe = async (recipe: Recipe) => {
+    const success = await saveRecipe(recipe);
+    if (success) {
+      Alert.alert('Thành công', 'Đã lưu công thức vào Menu của bạn');
+    } else {
+      Alert.alert('Thông báo', 'Công thức này đã được lưu trước đó');
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -56,6 +67,12 @@ export default function MapScreen() {
             {selectedRecipes.map((recipe) => (
               <View key={recipe.id} style={styles.recipeCard}>
                 <Text style={styles.recipeName}>{recipe.name}</Text>
+                <TouchableOpacity
+                  style={styles.saveButton}
+                  onPress={() => handleSaveRecipe(recipe)}
+                >
+                  <Text style={styles.saveButtonText}>Lưu công thức</Text>
+                </TouchableOpacity>
                 <Text style={styles.sectionTitle}>Nguyên liệu:</Text>
                 {recipe.ingredients.map((ingredient, index) => (
                   <Text key={index}>• {ingredient}</Text>
@@ -111,5 +128,16 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginTop: 10,
     marginBottom: 5,
+  },
+  saveButton: {
+    backgroundColor: '#4CAF50',
+    padding: 10,
+    borderRadius: 5,
+    marginVertical: 10,
+  },
+  saveButtonText: {
+    color: 'white',
+    textAlign: 'center',
+    fontWeight: 'bold',
   },
 });
