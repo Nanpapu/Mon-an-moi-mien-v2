@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -14,10 +14,23 @@ import { useRecipes } from '../context/RecipeContext';
 
 export default function MenuScreen() {
   const { savedRecipes, refreshSavedRecipes } = useRecipes();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
 
-  useEffect(() => {
-    refreshSavedRecipes();
-  }, []);
+  const filteredRecipes = useMemo(() => {
+    return savedRecipes.filter(recipe => {
+      const matchesSearch = recipe.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        recipe.ingredients.some(i => i.toLowerCase().includes(searchQuery.toLowerCase()));
+      
+      const matchesRegion = !selectedRegion || recipe.region === selectedRegion;
+      
+      return matchesSearch && matchesRegion;
+    });
+  }, [savedRecipes, searchQuery, selectedRegion]);
+
+  const regions = useMemo(() => {
+    return Array.from(new Set(savedRecipes.map(r => r.region)));
+  }, [savedRecipes]);
 
   const handleDeleteRecipe = async (recipe: Recipe) => {
     Alert.alert(
@@ -93,8 +106,28 @@ export default function MenuScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-    padding: 15,
+    backgroundColor: '#fff',
+  },
+  filterContainer: {
+    paddingHorizontal: 10,
+    marginBottom: 10,
+  },
+  filterButton: {
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#f0f0f0',
+    marginRight: 8,
+  },
+  filterButtonActive: {
+    backgroundColor: '#007AFF',
+  },
+  filterText: {
+    color: '#333',
+    fontSize: 14,
+  },
+  recipeList: {
+    flex: 1,
   },
   emptyContainer: {
     flex: 1,
